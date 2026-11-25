@@ -1,0 +1,30 @@
+services:
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+  server:
+    build: ./back-end
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env.example
+    environment:
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+    depends_on:
+      - mailpit
+
+  client:
+    build:
+      context: ./front-end
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:4000/api
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:4000/api
+    depends_on:
+      - server
